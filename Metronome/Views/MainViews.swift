@@ -515,8 +515,8 @@ private struct SubdivisionStrip: View {
             }
             .padding(.horizontal, 2)
         }
-        .scrollClipDisabled()
         .frame(maxWidth: 560)
+        .clipped()
     }
 }
 
