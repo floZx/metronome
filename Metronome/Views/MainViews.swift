@@ -489,34 +489,46 @@ private struct SubdivisionStrip: View {
     @Environment(MetronomeController.self) private var metronome
 
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                ForEach(Subdivision.allCases) { subdivision in
-                    let selected = metronome.settings.subdivision == subdivision
-                    Button {
-                        metronome.settings.subdivision = subdivision
-                        Haptics.selection()
-                    } label: {
-                        VStack(spacing: 0) {
-                            Text(subdivision.glyph).font(.system(size: 20))
-                            Text(subdivision.label).font(.system(size: 10, weight: .semibold))
-                        }
-                        .frame(width: 66, height: 50)
-                        .foregroundStyle(selected ? .black : .white.opacity(0.85))
-                        .background(
-                            selected ? AnyShapeStyle(metronome.prefs.theme.color) : AnyShapeStyle(Color.white.opacity(0.07)),
-                            in: RoundedRectangle(cornerRadius: 13, style: .continuous)
-                        )
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Subdivision \(subdivision.label)")
-                    .accessibilityAddTraits(selected ? .isSelected : [])
-                }
+        // Plain row when everything fits (Mac, iPad); scrolling strip otherwise (iPhone).
+        ViewThatFits(in: .horizontal) {
+            chips(width: 58).fixedSize()
+            // Scrolls edge to edge of the screen, past the column's 20 pt margins.
+            ScrollView(.horizontal, showsIndicators: false) {
+                chips(width: 66).padding(.horizontal, 20)
             }
-            .padding(.horizontal, 2)
+            .padding(.horizontal, -20)
         }
-        .frame(maxWidth: 560)
-        .clipped()
+        .frame(maxWidth: .infinity)
+    }
+
+    private func chips(width: CGFloat) -> some View {
+        HStack(spacing: 8) {
+            ForEach(Subdivision.allCases) { subdivision in
+                let selected = metronome.settings.subdivision == subdivision
+                Button {
+                    metronome.settings.subdivision = subdivision
+                    Haptics.selection()
+                } label: {
+                    VStack(spacing: 0) {
+                        Text(subdivision.glyph).font(.system(size: 20))
+                        Text(subdivision.label)
+                            .font(.system(size: 10, weight: .semibold))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
+                    }
+                    .padding(.horizontal, 3)
+                    .frame(width: width, height: 50)
+                    .foregroundStyle(selected ? .black : .white.opacity(0.85))
+                    .background(
+                        selected ? AnyShapeStyle(metronome.prefs.theme.color) : AnyShapeStyle(Color.white.opacity(0.07)),
+                        in: RoundedRectangle(cornerRadius: 13, style: .continuous)
+                    )
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Subdivision \(subdivision.label)")
+                .accessibilityAddTraits(selected ? .isSelected : [])
+            }
+        }
     }
 }
 
