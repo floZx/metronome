@@ -18,7 +18,10 @@ struct ContentView: View {
                         if !wide { showPanel = true }
                     }
                     .frame(maxWidth: wide ? .infinity : 560)
-                    .frame(maxWidth: .infinity)
+                    // Exact width: a wide child (the subdivision strip) must never push
+                    // the column under the side panel.
+                    .frame(width: wide ? geo.size.width - 400 : geo.size.width)
+                    .clipped()
                     if wide {
                         ControlPanel(tab: $panelTab)
                             .frame(width: 400)
